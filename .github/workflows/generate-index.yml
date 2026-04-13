@@ -17,7 +17,14 @@ jobs:
       - name: Generate index.html
         run: |
           # Start the HTML file
-          echo "<!DOCTYPE html><html><head><title>Repository Index</title><style>body{font-family:sans-serif;padding:20px;} h2{color:#0366d6;border-bottom:1px solid #eee;padding-bottom:5px;} ul{list-style-type:square;}</style></head><body>" > index.html
+          echo "<!DOCTYPE html><html><head>" > index.html
+          echo "<title>Tetra Reporting Index</title>" > index.html
+          echo "<style>" > index.html
+          echo "body{font-family:sans-serif;padding:20px;}" > index.html
+          echo "h2{color:#0366d6;border-bottom:1px solid #eee;padding-bottom:5px;}" > index.html
+          echo "ul{list-style-type:square;}" > index.html
+          echo "</style>" > index.html
+          echo "</head><body>" > index.html
           echo "<h1>Reporting Index</h1>" >> index.html
 
           # Loop through 1st level directories (ignoring hidden ones like .github)
@@ -32,7 +39,7 @@ jobs:
               for d2 in "$d1"*/ ; do
                 if [ -d "$d2" ]; then
                   child=$(basename "$d2")
-                  echo "<li>$child</li>" >> index.html
+                  echo "<li><a href='$d1/$child' target='_blank'>$child</a></li>" >> index.html
                   found_sub=true
                 fi
               done
