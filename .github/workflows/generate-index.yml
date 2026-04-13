@@ -1,0 +1,64 @@
+name: Generate Directory Index
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate index.html
+        run: |
+          # Start the HTML file
+          echo "<!DOCTYPE html><html><head>" > index.html
+          echo "<title>Tetra Reporting Index</title>" >> index.html
+          echo "<style>" >> index.html
+          echo "body{font-family:sans-serif;padding:20px;}" >> index.html
+          echo "h2{color:#0366d6;border-bottom:1px solid #eee;padding-bottom:5px;}" >> index.html
+          echo "ul{list-style-type:square;}" >> index.html
+          echo "</style>" >> index.html
+          echo "</head><body>" >> index.html
+          echo "<h1>Reporting Index</h1>" >> index.html
+
+          # Get 1st level directories sorted by time (newest first), ignoring hidden ones
+          for d1 in $(ls -dt */ | grep -v '^\.'); do
+            if [ -d "$d1" ]; then
+              parent=$(basename "$d1")
+              echo "<h2>$parent</h2><ul>" >> index.html
+              
+              found_sub=false
+              # Get 2nd level directories sorted by time (newest first)
+              # We use '2>/dev/null' in case a parent directory is empty
+              for d2 in $(ls -dt "$d1"*/ 2>/dev/null); do
+                if [ -d "$d2" ]; then
+                  child=$(basename "$d2")
+                  echo "<li><a href='$d1/$child' target='_blank'>$child</a></li>" >> index.html
+                  found_sub=true
+                fi
+              done
+              
+              if [ "$found_sub" = false ]; then
+                echo "<li><em>No subdirectories found</em></li>" >> index.html
+              fi
+              
+              echo "</ul>" >> index.html
+            fi
+          done
+
+          echo "</body></html>" >> index.html
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          # Only commit if changes exist to avoid workflow failure
+          git commit -m "chore: auto-generate index.html" || exit 0
+          git push
