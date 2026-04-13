@@ -25,7 +25,7 @@ jobs:
           echo "ul{list-style-type:square;}" >> index.html
           echo "</style>" >> index.html
           echo "</head><body>" >> index.html
-          echo "<h1>Reporting Index</h1>" >> index.html
+          echo "<h1>Tetra Reports</h1>" >> index.html
 
           # Get 1st level directories sorted by time (newest first), ignoring hidden ones
           for d1 in $(ls -dt */ | grep -v '^\.'); do
