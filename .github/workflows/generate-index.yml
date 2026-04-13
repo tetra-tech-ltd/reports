@@ -27,16 +27,16 @@ jobs:
           echo "</head><body>" >> index.html
           echo "<h1>Reporting Index</h1>" >> index.html
 
-          # Loop through 1st level directories (ignoring hidden ones like .github)
-          for d1 in */ ; do
-            # Ensure it is a directory and not a file
-            if [ -d "$d1" ] && [[ "$d1" != .* ]]; then
+          # Get 1st level directories sorted by time (newest first), ignoring hidden ones
+          for d1 in $(ls -dt */ | grep -v '^\.'); do
+            if [ -d "$d1" ]; then
               parent=$(basename "$d1")
               echo "<h2>$parent</h2><ul>" >> index.html
               
-              # Find 2nd level subdirectories
               found_sub=false
-              for d2 in "$d1"*/ ; do
+              # Get 2nd level directories sorted by time (newest first)
+              # We use '2>/dev/null' in case a parent directory is empty
+              for d2 in $(ls -dt "$d1"*/ 2>/dev/null); do
                 if [ -d "$d2" ]; then
                   child=$(basename "$d2")
                   echo "<li><a href='$d1/$child' target='_blank'>$child</a></li>" >> index.html
